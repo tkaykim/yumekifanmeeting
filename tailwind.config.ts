@@ -57,13 +57,22 @@ const config = {
         },
       },
       fontFamily: {
-        heading: designTokens.typography.fontFamily.heading,
-        body: designTokens.typography.fontFamily.body,
-        mono: designTokens.typography.fontFamily.mono,
+        heading: [...designTokens.typography.fontFamily.heading],
+        body: [...designTokens.typography.fontFamily.body],
+        mono: [...designTokens.typography.fontFamily.mono],
       },
       fontSize: designTokens.typography.fontSize,
-      fontWeight: designTokens.typography.fontWeight,
-      lineHeight: designTokens.typography.lineHeight,
+      fontWeight: {
+        normal: String(designTokens.typography.fontWeight.normal),
+        medium: String(designTokens.typography.fontWeight.medium),
+        semibold: String(designTokens.typography.fontWeight.semibold),
+        bold: String(designTokens.typography.fontWeight.bold),
+      },
+      lineHeight: {
+        tight: String(designTokens.typography.lineHeight.tight),
+        normal: String(designTokens.typography.lineHeight.normal),
+        relaxed: String(designTokens.typography.lineHeight.relaxed),
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
