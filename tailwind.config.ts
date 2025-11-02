@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import { designTokens } from './src/styles/designTokens';
 
 const config = {
   darkMode: ['class'],
@@ -20,13 +21,24 @@ const config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: designTokens.colors.primary.background,
+          foreground: designTokens.colors.primary.text,
+          light: designTokens.colors.primary.light,
+          dark: designTokens.colors.primary.dark,
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: designTokens.colors.secondary.background,
+          foreground: designTokens.colors.secondary.text,
+          light: designTokens.colors.secondary.light,
+          dark: designTokens.colors.secondary.dark,
         },
+        accent: {
+          DEFAULT: designTokens.colors.accent.background,
+          foreground: designTokens.colors.accent.text,
+          light: designTokens.colors.accent.light,
+          dark: designTokens.colors.accent.dark,
+        },
+        grayscale: designTokens.colors.grayscale,
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
@@ -34,10 +46,6 @@ const config = {
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
         },
         popover: {
           DEFAULT: 'hsl(var(--popover))',
@@ -48,6 +56,14 @@ const config = {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
+      fontFamily: {
+        heading: designTokens.typography.fontFamily.heading,
+        body: designTokens.typography.fontFamily.body,
+        mono: designTokens.typography.fontFamily.mono,
+      },
+      fontSize: designTokens.typography.fontSize,
+      fontWeight: designTokens.typography.fontWeight,
+      lineHeight: designTokens.typography.lineHeight,
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

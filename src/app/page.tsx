@@ -1,168 +1,237 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Github, Copy, Sparkles } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import axios from 'axios';
+import { Card } from '@/components/ui/card';
+import { Navbar } from '@/components/navbar';
+import { PurchaseDialog } from '@/components/purchase-dialog';
+import { ShoppingBag, Ticket, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import Image from 'next/image';
 
-const PACKAGE_NAME = '@easynext/cli';
-const CURRENT_VERSION = 'v0.1.38';
+type NavSection = 'meeting' | 'goods';
 
-function latestVersion(packageName: string) {
-  return axios
-    .get('https://registry.npmjs.org/' + packageName + '/latest')
-    .then((res) => res.data.version);
+interface GoodsItem {
+  id: string;
+  name: string;
+  price: number;
+  sizes?: string[];
+  options?: string[];
+  images: {
+    info: string;
+    sizeChart?: string;
+  };
 }
 
 export default function Home() {
-  const { toast } = useToast();
-  const [latest, setLatest] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<NavSection>('meeting');
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchLatestVersion = async () => {
-      try {
-        const version = await latestVersion(PACKAGE_NAME);
-        setLatest(`v${version}`);
-      } catch (error) {
-        console.error('Failed to fetch version info:', error);
-      }
-    };
-    fetchLatestVersion();
-  }, []);
-
-  const handleCopyCommand = () => {
-    navigator.clipboard.writeText(`npm install -g ${PACKAGE_NAME}@latest`);
-    toast({
-      description: 'Update command copied to clipboard',
-    });
-  };
-
-  const needsUpdate = latest && latest !== CURRENT_VERSION;
-
-  return (
-    <div className="flex min-h-screen relative overflow-hidden">
-      {/* Main Content */}
-      <div className="min-h-screen flex bg-gray-100">
-        <div className="flex flex-col p-5 md:p-8 space-y-4">
-          <h1 className="text-3xl md:text-5xl font-semibold tracking-tighter !leading-tight text-left">
-            Easiest way to start
-            <br /> Next.js project
-            <br /> with Cursor
-          </h1>
-
-          <p className="text-lg text-muted-foreground">
-            Get Pro-created Next.js bootstrap just in seconds
-          </p>
-
-          <div className="flex items-center gap-2">
-            <Button
-              asChild
-              size="lg"
-              variant="secondary"
-              className="gap-2 w-fit rounded-full px-4 py-2 border border-black"
-            >
-              <a href="https://github.com/easynextjs/easynext" target="_blank">
-                <Github className="w-4 h-4" />
-                GitHub
-              </a>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="secondary"
-              className="gap-2 w-fit rounded-full px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white"
-            >
-              <a href="https://easynext.org/premium" target="_blank">
-                <Sparkles className="w-4 h-4" />
-                Premium
-              </a>
-            </Button>
-          </div>
-          <Section />
-        </div>
-      </div>
-
-      <div className="min-h-screen ml-16 flex-1 flex flex-col items-center justify-center space-y-4">
-        <div className="flex flex-col items-center space-y-2">
-          <p className="text-muted-foreground">
-            Current Version: {CURRENT_VERSION}
-          </p>
-          <p className="text-muted-foreground">
-            Latest Version:{' '}
-            <span className="font-bold">{latest || 'Loading...'}</span>
-          </p>
-        </div>
-
-        {needsUpdate && (
-          <div className="flex flex-col items-center space-y-2">
-            <p className="text-yellow-600">New version available!</p>
-            <p className="text-sm text-muted-foreground">
-              Copy and run the command below to update:
-            </p>
-            <div className="relative group">
-              <pre className="bg-gray-100 p-4 rounded-lg">
-                npm install -g {PACKAGE_NAME}@latest
-              </pre>
-              <button
-                onClick={handleCopyCommand}
-                className="absolute top-2 right-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Copy className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Section() {
-  const items = [
-    { href: 'https://nextjs.org/', label: 'Next.js' },
-    { href: 'https://ui.shadcn.com/', label: 'shadcn/ui' },
-    { href: 'https://tailwindcss.com/', label: 'Tailwind CSS' },
-    { href: 'https://www.framer.com/motion/', label: 'framer-motion' },
-    { href: 'https://zod.dev/', label: 'zod' },
-    { href: 'https://date-fns.org/', label: 'date-fns' },
-    { href: 'https://ts-pattern.dev/', label: 'ts-pattern' },
-    { href: 'https://es-toolkit.dev/', label: 'es-toolkit' },
-    { href: 'https://zustand.docs.pmnd.rs/', label: 'zustand' },
-    { href: 'https://supabase.com/', label: 'supabase' },
-    { href: 'https://react-hook-form.com/', label: 'react-hook-form' },
+  const goodsItems: GoodsItem[] = [
+    {
+      id: 'tshirt',
+      name: '반팔티',
+      price: 35000,
+      sizes: ['S', 'M', 'L'],
+      images: {
+        info: 'https://picsum.photos/800/600?random=tshirt-info',
+        sizeChart: 'https://picsum.photos/800/600?random=tshirt-size',
+      },
+    },
+    {
+      id: 'hoodie',
+      name: '후드티',
+      price: 65000,
+      sizes: ['M', 'L'],
+      images: {
+        info: 'https://picsum.photos/800/600?random=hoodie-info',
+        sizeChart: 'https://picsum.photos/800/600?random=hoodie-size',
+      },
+    },
+    {
+      id: 'keyring',
+      name: '아크릴키링',
+      price: 12000,
+      options: ['Love it', 'Miss Me'],
+      images: {
+        info: 'https://picsum.photos/800/600?random=keyring-info',
+        sizeChart: 'https://picsum.photos/800/600?random=keyring-size',
+      },
+    },
+    {
+      id: 'stand',
+      name: '아크릴 스탠드',
+      price: 15000,
+      options: ['000mm x 000mm'],
+      images: {
+        info: 'https://picsum.photos/800/600?random=stand-info',
+        sizeChart: 'https://picsum.photos/800/600?random=stand-size',
+      },
+    },
+    {
+      id: 'photocard',
+      name: '포토카드',
+      price: 5000,
+      options: ['6종'],
+      images: {
+        info: 'https://picsum.photos/800/600?random=photocard-info',
+      },
+    },
   ];
 
-  return (
-    <div className="flex flex-col py-5 md:py-8 space-y-2 opacity-75">
-      <p className="font-semibold">What&apos;s Included</p>
+  const totalSelectedCount = 0;
 
-      <div className="flex flex-col space-y-1 text-muted-foreground">
-        {items.map((item) => (
-          <SectionItem key={item.href} href={item.href}>
-            {item.label}
-          </SectionItem>
-        ))}
-      </div>
+  return (
+    <div className="flex flex-col min-h-screen pb-20">
+      <Navbar activeSection={activeSection} onSectionChange={setActiveSection} />
+
+      {activeSection === 'meeting' && (
+        <section className="flex-1 bg-primary-light/30">
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="font-heading text-4xl md:text-5xl font-bold text-primary-dark mb-4">
+                  팬미팅 정보
+                </h2>
+                <p className="text-lg text-grayscale-600 font-body">
+                  유메키와 함께하는 특별한 시간을 준비하세요
+                </p>
+              </div>
+
+              <Card className="border-2 border-primary-light overflow-hidden">
+                <div className="relative w-full h-[600px] bg-primary-light">
+                  <Image
+                    src="https://picsum.photos/1200/800?random=meeting"
+                    alt="팬미팅 상세 정보"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </Card>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {activeSection === 'goods' && (
+        <section className="flex-1 bg-primary-light/30 py-12">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="font-heading text-4xl md:text-5xl font-bold text-primary-dark mb-4">
+                굿즈 정보
+              </h2>
+              <p className="text-lg text-grayscale-600 font-body">
+                한정판 굿즈를 지금 바로 구매하세요
+              </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto space-y-12">
+              {/* 공통 상세페이지 이미지 */}
+              <Card className="border-2 border-primary-light overflow-hidden">
+                <div className="relative w-full h-auto">
+                  <Image
+                    src="https://picsum.photos/1200/800?random=common-detail"
+                    alt="공통 상세페이지"
+                    width={1200}
+                    height={800}
+                    className="w-full h-auto"
+                  />
+                </div>
+              </Card>
+
+              {/* 굿즈별 정보 */}
+              {goodsItems.map((item) => (
+                <div key={item.id} className="space-y-6">
+                  {/* 상품 정보 이미지 */}
+                  <Card className="border-2 border-primary-light overflow-hidden">
+                    <div className="relative w-full h-auto">
+                      <Image
+                        src={item.images.info}
+                        alt={`${item.name} 정보`}
+                        width={1200}
+                        height={600}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  </Card>
+
+                  {/* 사이즈표 이미지 (사이즈가 있는 경우만) */}
+                  {item.images.sizeChart && (
+                    <Card className="border-2 border-primary-light overflow-hidden">
+                      <div className="relative w-full h-auto">
+                        <Image
+                          src={item.images.sizeChart}
+                          alt={`${item.name} 사이즈표`}
+                          width={1200}
+                          height={600}
+                          className="w-full h-auto"
+                        />
+                      </div>
+                    </Card>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 플로팅 버튼 (공연정보 섹션) */}
+      {activeSection === 'meeting' && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex gap-4">
+          <Button
+            size="lg"
+            className="bg-secondary hover:bg-secondary-dark text-white text-lg px-12 py-6 rounded-full font-semibold shadow-2xl hover:shadow-3xl transition-all"
+            onClick={() => window.open('https://www.hypetown.kr/event/mguchc1l-z86g', '_blank')}
+          >
+            <Ticket className="w-5 h-5 mr-2" />
+            티켓팅하기
+            <ExternalLink className="w-4 h-4 ml-2" />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="bg-white hover:bg-primary-light text-primary-dark border-2 border-primary-dark text-lg px-12 py-6 rounded-full font-semibold shadow-2xl hover:shadow-3xl transition-all"
+            onClick={() => setActiveSection('goods')}
+          >
+            <ShoppingBag className="w-5 h-5 mr-2" />
+            굿즈
+          </Button>
+        </div>
+      )}
+
+      {/* 플로팅 버튼 (굿즈 섹션) */}
+      {activeSection === 'goods' && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex gap-4">
+          <Button
+            size="lg"
+            variant="outline"
+            className="bg-white hover:bg-primary-light text-primary-dark border-2 border-primary-dark text-lg px-10 py-6 rounded-full font-semibold shadow-2xl hover:shadow-3xl transition-all"
+            onClick={() => setActiveSection('meeting')}
+          >
+            <Ticket className="w-5 h-5 mr-2" />
+            공연정보 확인하기
+          </Button>
+          <Button
+            size="lg"
+            className="bg-secondary hover:bg-secondary-dark text-white text-lg px-12 py-6 rounded-full font-semibold shadow-2xl hover:shadow-3xl transition-all"
+            onClick={() => setPurchaseDialogOpen(true)}
+          >
+            <ShoppingBag className="w-5 h-5 mr-2" />
+            구매하기
+            {totalSelectedCount > 0 && (
+              <span className="ml-2 bg-white text-secondary rounded-full px-2 py-0.5 text-sm font-bold">
+                {totalSelectedCount}
+              </span>
+            )}
+          </Button>
+        </div>
+      )}
+
+      <PurchaseDialog
+        items={goodsItems}
+        open={purchaseDialogOpen}
+        onOpenChange={setPurchaseDialogOpen}
+      />
     </div>
-  );
-}
-
-function SectionItem({
-  children,
-  href,
-}: {
-  children: React.ReactNode;
-  href: string;
-}) {
-  return (
-    <a
-      href={href}
-      className="flex items-center gap-2 underline"
-      target="_blank"
-    >
-      <CheckCircle className="w-4 h-4" />
-      <p>{children}</p>
-    </a>
   );
 }
